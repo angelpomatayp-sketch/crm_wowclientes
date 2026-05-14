@@ -95,13 +95,14 @@ const resumen = async (req, res) => {
     const whereOrdenes = whereConFecha(req, 'fecha');
     const whereFacturas = whereConFecha(req, 'fecha');
 
-    const [clientes, cotizaciones, cotizacionesAprobadas, ordenes, facturas, totalFacturado] = await Promise.all([
+    const [clientes, cotizaciones, cotizacionesAprobadas, ordenes, facturas, totalFacturado, totalFacturadoUsd] = await Promise.all([
       Cliente.count({ where: whereClientes }),
       Cotizacion.count({ where: whereCotizaciones }),
       Cotizacion.count({ where: { ...whereCotizaciones, estado: 'aprobado' } }),
       Orden.count({ where: whereOrdenes }),
       Factura.count({ where: whereFacturas }),
-      Factura.sum('total', { where: whereFacturas }),
+      Factura.sum('total', { where: { ...whereFacturas, moneda: 'PEN' } }),
+      Factura.sum('total', { where: { ...whereFacturas, moneda: 'USD' } }),
     ]);
 
     const conversion = cotizaciones > 0 ? Number(((cotizacionesAprobadas / cotizaciones) * 100).toFixed(2)) : 0;
@@ -114,6 +115,7 @@ const resumen = async (req, res) => {
       ordenes,
       facturas,
       total_facturado: Number(totalFacturado || 0),
+      total_facturado_usd: Number(totalFacturadoUsd || 0),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -9,6 +9,14 @@ const Recordatorio = sequelize.define('Recordatorio', {
   descripcion: { type: DataTypes.TEXT, allowNull: false },
   completado: { type: DataTypes.BOOLEAN, defaultValue: false },
   notificado: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, { tableName: 'recordatorios' });
+}, {
+  tableName: 'recordatorios',
+  indexes: [
+    { fields: ['ejecutivo_id'] },
+    { fields: ['cliente_id'] },
+    { fields: ['completado'] },
+    { fields: ['fecha'] },
+  ],
+});
 
 module.exports = Recordatorio;

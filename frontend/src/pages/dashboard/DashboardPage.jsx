@@ -37,6 +37,7 @@ const DashboardPage = () => {
     ordenes: 0,
     facturas: 0,
     total_facturado: 0,
+    total_facturado_usd: 0,
     conversion: 0,
     recordatorios: 0,
   });
@@ -79,6 +80,7 @@ const DashboardPage = () => {
         ordenes: r.ordenes || 0,
         facturas: r.facturas || 0,
         total_facturado: Number(r.total_facturado || 0),
+        total_facturado_usd: Number(r.total_facturado_usd || 0),
         conversion: Number(r.conversion || 0),
         recordatorios: rec.data.filter((r) => !r.completado).length,
       });
@@ -134,10 +136,19 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-5">
-        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-          <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Facturación Total</p>
-          <p className="text-3xl font-bold text-blue-700 mt-1">{fmtMoney(stats.total_facturado)}</p>
-          <p className="text-xs text-gray-500 mt-2">Conversión de cotizaciones: {stats.conversion}%</p>
+        <div className="grid grid-rows-2 gap-3">
+          <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Facturación Total (Soles)</p>
+            <p className="text-3xl font-bold text-blue-700 mt-1">{fmtMoney(stats.total_facturado)}</p>
+            <p className="text-xs text-gray-500 mt-2">Conversión de cotizaciones: {stats.conversion}%</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Facturación Total (Dólares)</p>
+            <p className="text-3xl font-bold text-emerald-700 mt-1">
+              {`$ ${Number(stats.total_facturado_usd || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`}
+            </p>
+            <p className="text-xs text-gray-500 mt-2">Facturas emitidas en USD</p>
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>

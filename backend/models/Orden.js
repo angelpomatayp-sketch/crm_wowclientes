@@ -11,6 +11,13 @@ const Orden = sequelize.define('Orden', {
   monto: { type: DataTypes.DECIMAL(12, 2) },
   archivo_orden: { type: DataTypes.STRING(300) },
   observaciones: { type: DataTypes.TEXT },
-}, { tableName: 'ordenes' });
+}, {
+  tableName: 'ordenes',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['ejecutivo_id'] },
+    { fields: ['cotizacion_id'] },
+  ],
+});
 
 module.exports = Orden;

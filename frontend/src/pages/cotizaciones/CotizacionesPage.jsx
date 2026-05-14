@@ -149,6 +149,7 @@ const CotizacionesPage = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [modalCrear, setModalCrear] = useState(!!searchParams.get('cliente'));
+  const [modalEliminar, setModalEliminar] = useState(null);
 
   const clientePresel = searchParams.get('cliente');
 
@@ -169,6 +170,17 @@ const CotizacionesPage = () => {
 
   useEffect(() => { cargar(); }, []);
   useEffect(() => { setPage(1); }, [busqueda, filtroEstado]);
+
+  const handleEliminar = async () => {
+    try {
+      await axios.delete(`/cotizaciones/${modalEliminar.id}`);
+      toast.success('Cotización eliminada');
+      setModalEliminar(null);
+      cargar();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error al eliminar cotización');
+    }
+  };
 
   const handleCrear = async (form) => {
     setSaving(true);
@@ -327,12 +339,22 @@ const CotizacionesPage = () => {
                   <td className="px-6 py-4"><EstadoBadge estado={c.estado} /></td>
                   {user.rol === 'admin' && <td className="px-6 py-4 text-xs text-gray-500">{c.ejecutivo?.nombre}</td>}
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => navigate(`/cotizaciones/${c.id}`)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition"
-                    >
-                      Ver detalle
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => navigate(`/cotizaciones/${c.id}`)}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition"
+                      >
+                        Ver detalle
+                      </button>
+                      {user.rol === 'admin' && (
+                        <button
+                          onClick={() => setModalEliminar(c)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -344,6 +366,21 @@ const CotizacionesPage = () => {
       {!loading && filtradas.length > 0 && (
         <Pagination page={page} pageSize={pageSize} total={filtradas.length} onChange={setPage} />
       )}
+
+      {/* Modal Eliminar */}
+      <Modal open={!!modalEliminar} onClose={() => setModalEliminar(null)} title="Eliminar cotización">
+        {modalEliminar && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              ¿Eliminar la cotización <strong>{modalEliminar.numero}</strong>? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setModalEliminar(null)} className="text-sm px-4 py-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Cancelar</button>
+              <button onClick={handleEliminar} className="text-sm px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition">Eliminar</button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Modal */}
       <Modal open={modalCrear} onClose={() => setModalCrear(false)} title="Nueva cotización">

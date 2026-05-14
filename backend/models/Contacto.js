@@ -12,6 +12,12 @@ const Contacto = sequelize.define('Contacto', {
   celular: { type: DataTypes.STRING(20) },
   contacto_principal: { type: DataTypes.BOOLEAN, defaultValue: false },
   activo: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { tableName: 'contactos' });
+}, {
+  tableName: 'contactos',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['activo'] },
+  ],
+});
 
 module.exports = Contacto;

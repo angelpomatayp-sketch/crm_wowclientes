@@ -19,6 +19,14 @@ const Cliente = sequelize.define('Cliente', {
   ejecutivo_id: { type: DataTypes.INTEGER, allowNull: false },
   activo: { type: DataTypes.BOOLEAN, defaultValue: true },
   fecha_registro: { type: DataTypes.DATEONLY },
-}, { tableName: 'clientes' });
+}, {
+  tableName: 'clientes',
+  indexes: [
+    { fields: ['ejecutivo_id'] },
+    { fields: ['estado_cliente'] },
+    { fields: ['activo'] },
+    { fields: ['ruc'] },
+  ],
+});
 
 module.exports = Cliente;

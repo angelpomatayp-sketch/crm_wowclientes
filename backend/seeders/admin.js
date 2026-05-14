@@ -16,7 +16,6 @@ const { sequelize, Ejecutivo } = require('../models');
     }
 
     await sequelize.authenticate();
-    await sequelize.sync();
 
     const existe = await Ejecutivo.findOne({ where: { email: adminEmail } });
     if (existe) {

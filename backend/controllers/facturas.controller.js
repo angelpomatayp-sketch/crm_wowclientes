@@ -58,7 +58,7 @@ const listar = async (req, res) => {
 const crear = async (req, res) => {
   try {
     const {
-      orden_id, numero_factura, fecha, subtotal,
+      orden_id, numero_factura, fecha, subtotal, moneda,
     } = req.body;
 
     if (!orden_id) return res.status(400).json({ message: 'La orden es requerida' });
@@ -86,6 +86,8 @@ const crear = async (req, res) => {
       ? `/uploads/facturas/${req.files.archivo_xml[0].filename}`
       : null;
 
+    const monedaValida = ['PEN', 'USD'].includes(moneda) ? moneda : 'PEN';
+
     const factura = await Factura.create({
       numero_factura: numero_factura.trim(),
       orden_id,
@@ -95,6 +97,7 @@ const crear = async (req, res) => {
       subtotal: subtotalNum,
       igv,
       total,
+      moneda: monedaValida,
       archivo_pdf,
       archivo_xml,
     });

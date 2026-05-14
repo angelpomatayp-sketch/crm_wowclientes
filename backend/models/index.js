@@ -17,7 +17,7 @@ const Marca = require('./Marca');
 const MarcaContacto = require('./MarcaContacto');
 
 // Ejecutivo -> Clientes
-Ejecutivo.hasMany(Cliente, { foreignKey: 'ejecutivo_id', as: 'clientes' });
+Ejecutivo.hasMany(Cliente, { foreignKey: 'ejecutivo_id', as: 'clientes', onDelete: 'RESTRICT' });
 Cliente.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
 
 // Cliente -> Contactos
@@ -25,11 +25,11 @@ Cliente.hasMany(Contacto, { foreignKey: 'cliente_id', as: 'contactos', onDelete:
 Contacto.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
 
 // Cliente -> Cotizaciones
-Cliente.hasMany(Cotizacion, { foreignKey: 'cliente_id', as: 'cotizaciones' });
+Cliente.hasMany(Cotizacion, { foreignKey: 'cliente_id', as: 'cotizaciones', onDelete: 'RESTRICT' });
 Cotizacion.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-Ejecutivo.hasMany(Cotizacion, { foreignKey: 'ejecutivo_id', as: 'cotizaciones' });
+Ejecutivo.hasMany(Cotizacion, { foreignKey: 'ejecutivo_id', as: 'cotizaciones', onDelete: 'RESTRICT' });
 Cotizacion.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
-Contacto.hasMany(Cotizacion, { foreignKey: 'contacto_id', as: 'cotizaciones' });
+Contacto.hasMany(Cotizacion, { foreignKey: 'contacto_id', as: 'cotizaciones', onDelete: 'SET NULL' });
 Cotizacion.belongsTo(Contacto, { foreignKey: 'contacto_id', as: 'contacto' });
 
 // Cotizacion -> Items
@@ -37,41 +37,41 @@ Cotizacion.hasMany(CotizacionItem, { foreignKey: 'cotizacion_id', as: 'items', o
 CotizacionItem.belongsTo(Cotizacion, { foreignKey: 'cotizacion_id', as: 'cotizacion' });
 
 // Cotizacion -> Orden
-Cotizacion.hasOne(Orden, { foreignKey: 'cotizacion_id', as: 'orden' });
+Cotizacion.hasOne(Orden, { foreignKey: 'cotizacion_id', as: 'orden', onDelete: 'SET NULL' });
 Orden.belongsTo(Cotizacion, { foreignKey: 'cotizacion_id', as: 'cotizacion' });
-Cliente.hasMany(Orden, { foreignKey: 'cliente_id', as: 'ordenes' });
+Cliente.hasMany(Orden, { foreignKey: 'cliente_id', as: 'ordenes', onDelete: 'RESTRICT' });
 Orden.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-Ejecutivo.hasMany(Orden, { foreignKey: 'ejecutivo_id', as: 'ordenes' });
+Ejecutivo.hasMany(Orden, { foreignKey: 'ejecutivo_id', as: 'ordenes', onDelete: 'RESTRICT' });
 Orden.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
 
 // Orden -> Factura
-Orden.hasOne(Factura, { foreignKey: 'orden_id', as: 'factura' });
+Orden.hasOne(Factura, { foreignKey: 'orden_id', as: 'factura', onDelete: 'SET NULL' });
 Factura.belongsTo(Orden, { foreignKey: 'orden_id', as: 'orden' });
-Cliente.hasMany(Factura, { foreignKey: 'cliente_id', as: 'facturas' });
+Cliente.hasMany(Factura, { foreignKey: 'cliente_id', as: 'facturas', onDelete: 'RESTRICT' });
 Factura.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-Ejecutivo.hasMany(Factura, { foreignKey: 'ejecutivo_id', as: 'facturas' });
+Ejecutivo.hasMany(Factura, { foreignKey: 'ejecutivo_id', as: 'facturas', onDelete: 'RESTRICT' });
 Factura.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
 
 // Actividades
-Cliente.hasMany(Actividad, { foreignKey: 'cliente_id', as: 'actividades' });
+Cliente.hasMany(Actividad, { foreignKey: 'cliente_id', as: 'actividades', onDelete: 'CASCADE' });
 Actividad.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-Ejecutivo.hasMany(Actividad, { foreignKey: 'ejecutivo_id', as: 'actividades' });
+Ejecutivo.hasMany(Actividad, { foreignKey: 'ejecutivo_id', as: 'actividades', onDelete: 'RESTRICT' });
 Actividad.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
-Contacto.hasMany(Actividad, { foreignKey: 'contacto_id', as: 'actividades' });
+Contacto.hasMany(Actividad, { foreignKey: 'contacto_id', as: 'actividades', onDelete: 'SET NULL' });
 Actividad.belongsTo(Contacto, { foreignKey: 'contacto_id', as: 'contacto' });
 
 // Oportunidades
-Cliente.hasMany(Oportunidad, { foreignKey: 'cliente_id', as: 'oportunidades' });
+Cliente.hasMany(Oportunidad, { foreignKey: 'cliente_id', as: 'oportunidades', onDelete: 'RESTRICT' });
 Oportunidad.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-Ejecutivo.hasMany(Oportunidad, { foreignKey: 'ejecutivo_id', as: 'oportunidades' });
+Ejecutivo.hasMany(Oportunidad, { foreignKey: 'ejecutivo_id', as: 'oportunidades', onDelete: 'RESTRICT' });
 Oportunidad.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
-Cotizacion.hasOne(Oportunidad, { foreignKey: 'cotizacion_id', as: 'oportunidad' });
+Cotizacion.hasOne(Oportunidad, { foreignKey: 'cotizacion_id', as: 'oportunidad', onDelete: 'SET NULL' });
 Oportunidad.belongsTo(Cotizacion, { foreignKey: 'cotizacion_id', as: 'cotizacion' });
 
 // Recordatorios
-Ejecutivo.hasMany(Recordatorio, { foreignKey: 'ejecutivo_id', as: 'recordatorios' });
+Ejecutivo.hasMany(Recordatorio, { foreignKey: 'ejecutivo_id', as: 'recordatorios', onDelete: 'CASCADE' });
 Recordatorio.belongsTo(Ejecutivo, { foreignKey: 'ejecutivo_id', as: 'ejecutivo' });
-Cliente.hasMany(Recordatorio, { foreignKey: 'cliente_id', as: 'recordatorios' });
+Cliente.hasMany(Recordatorio, { foreignKey: 'cliente_id', as: 'recordatorios', onDelete: 'SET NULL' });
 Recordatorio.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
 
 // Proveedores -> Contactos
@@ -82,8 +82,8 @@ ProveedorContacto.belongsTo(Proveedor, { foreignKey: 'proveedor_id', as: 'provee
 Marca.hasMany(MarcaContacto, { foreignKey: 'marca_id', as: 'contactos', onDelete: 'CASCADE' });
 MarcaContacto.belongsTo(Marca, { foreignKey: 'marca_id', as: 'marca' });
 
-// TipoCliente -> Categorias (constraints:false evita FK a nivel BD con ALTER TABLE)
-TipoCliente.hasMany(Categoria, { foreignKey: 'tipo_cliente_id', as: 'categorias', constraints: false });
+// TipoCliente -> Categorias
+TipoCliente.hasMany(Categoria, { foreignKey: 'tipo_cliente_id', as: 'categorias', onDelete: 'SET NULL', constraints: false });
 Categoria.belongsTo(TipoCliente, { foreignKey: 'tipo_cliente_id', as: 'tipo', constraints: false });
 
 module.exports = {

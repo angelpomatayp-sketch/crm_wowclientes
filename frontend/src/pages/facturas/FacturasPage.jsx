@@ -8,7 +8,11 @@ const inputCls = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm b
 const labelCls = 'block text-xs font-medium text-gray-600 mb-1';
 
 const fmtDate = (d) => (d ? new Date(`${d}T00:00:00`).toLocaleDateString('es-PE') : '-');
-const fmtMoney = (n) => (n != null ? `S/ ${Number(n).toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : '-');
+const fmtMoney = (n, moneda = 'PEN') => {
+  if (n == null) return '-';
+  const num = Number(n).toLocaleString('es-PE', { minimumFractionDigits: 2 });
+  return moneda === 'USD' ? `$ ${num}` : `S/ ${num}`;
+};
 const getArchivoUrl = (url) => {
   if (!url) return '';
   return url;
@@ -37,6 +41,7 @@ const FacturasPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [modalNueva, setModalNueva] = useState(false);
+  const [modalEliminar, setModalEliminar] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -46,6 +51,7 @@ const FacturasPage = () => {
     numero_factura: '',
     fecha: new Date().toISOString().split('T')[0],
     subtotal: '',
+    moneda: 'PEN',
     archivo_pdf: null,
     archivo_xml: null,
   });
@@ -81,12 +87,24 @@ const FacturasPage = () => {
     }
   }, [ordenSeleccionada]);
 
+  const handleEliminar = async () => {
+    try {
+      await axios.delete(`/facturas/${modalEliminar.id}`);
+      toast.success('Factura eliminada');
+      setModalEliminar(null);
+      cargar();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error al eliminar factura');
+    }
+  };
+
   const abrirModalNueva = () => {
     setForm({
       orden_id: '',
       numero_factura: '',
       fecha: new Date().toISOString().split('T')[0],
       subtotal: '',
+      moneda: 'PEN',
       archivo_pdf: null,
       archivo_xml: null,
     });
@@ -107,6 +125,7 @@ const FacturasPage = () => {
       payload.append('numero_factura', form.numero_factura);
       payload.append('fecha', form.fecha);
       payload.append('subtotal', form.subtotal);
+      payload.append('moneda', form.moneda);
       payload.append('archivo_pdf', form.archivo_pdf);
       if (form.archivo_xml) payload.append('archivo_xml', form.archivo_xml);
 
@@ -188,6 +207,7 @@ const FacturasPage = () => {
                 <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Orden</th>
                 <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Cliente</th>
                 <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fecha</th>
+                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Moneda</th>
                 <th className="text-right px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</th>
                 {user?.rol === 'admin' && (
                   <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ejecutivo</th>
@@ -202,7 +222,12 @@ const FacturasPage = () => {
                   <td className="px-6 py-4 text-gray-600">{f.orden?.numero_orden || '-'}</td>
                   <td className="px-6 py-4 text-gray-800">{f.cliente?.razon_social || '-'}</td>
                   <td className="px-6 py-4 text-gray-600">{fmtDate(f.fecha)}</td>
-                  <td className="px-6 py-4 text-right font-semibold text-gray-800">{fmtMoney(f.total)}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${f.moneda === 'USD' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {f.moneda || 'PEN'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right font-semibold text-gray-800">{fmtMoney(f.total, f.moneda)}</td>
                   {user?.rol === 'admin' && (
                     <td className="px-6 py-4 text-gray-600">
                       {[f.ejecutivo?.nombre, f.ejecutivo?.apellido].filter(Boolean).join(' ') || '-'}
@@ -230,6 +255,14 @@ const FacturasPage = () => {
                           XML
                         </a>
                       )}
+                      {user?.rol === 'admin' && (
+                        <button
+                          onClick={() => setModalEliminar(f)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -242,6 +275,20 @@ const FacturasPage = () => {
       {!loading && filtradas.length > 0 && (
         <Pagination page={page} pageSize={pageSize} total={filtradas.length} onChange={setPage} />
       )}
+
+      <Modal open={!!modalEliminar} onClose={() => setModalEliminar(null)} title="Eliminar factura">
+        <p className="text-sm text-gray-600 mb-5">
+          ¿Eliminar la factura <strong>{modalEliminar?.numero_factura}</strong>? Esta acción no se puede deshacer.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <button onClick={() => setModalEliminar(null)} className="px-4 py-2 text-sm rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+            Cancelar
+          </button>
+          <button onClick={handleEliminar} className="px-4 py-2 text-sm rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition">
+            Eliminar
+          </button>
+        </div>
+      </Modal>
 
       <Modal open={modalNueva} onClose={() => setModalNueva(false)} title="Registrar factura emitida en SUNAT">
         <form onSubmit={registrarFactura} className="space-y-4">
@@ -285,18 +332,31 @@ const FacturasPage = () => {
             </div>
           </div>
 
-          <div>
-            <label className={labelCls}>Subtotal *</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              className={inputCls}
-              value={form.subtotal}
-              onChange={(e) => setForm((p) => ({ ...p, subtotal: e.target.value }))}
-              required
-              placeholder="0.00"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Subtotal *</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                className={inputCls}
+                value={form.subtotal}
+                onChange={(e) => setForm((p) => ({ ...p, subtotal: e.target.value }))}
+                required
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Moneda *</label>
+              <select
+                className={inputCls}
+                value={form.moneda}
+                onChange={(e) => setForm((p) => ({ ...p, moneda: e.target.value }))}
+              >
+                <option value="PEN">S/ Soles (PEN)</option>
+                <option value="USD">$ Dólares (USD)</option>
+              </select>
+            </div>
           </div>
 
           <div>

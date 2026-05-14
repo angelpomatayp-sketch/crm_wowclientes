@@ -37,6 +37,7 @@ const OrdenesPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [modalNueva, setModalNueva] = useState(false);
+  const [modalEliminar, setModalEliminar] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -78,6 +79,17 @@ const OrdenesPage = () => {
       setForm((prev) => ({ ...prev, monto: cotizacionSeleccionada.monto || '' }));
     }
   }, [cotizacionSeleccionada]);
+
+  const handleEliminar = async () => {
+    try {
+      await axios.delete(`/ordenes/${modalEliminar.id}`);
+      toast.success('Orden eliminada');
+      setModalEliminar(null);
+      cargar();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error al eliminar orden');
+    }
+  };
 
   const abrirModalNueva = () => {
     setForm({
@@ -207,18 +219,28 @@ const OrdenesPage = () => {
                     </td>
                   )}
                   <td className="px-6 py-4 text-right">
-                    {o.archivo_orden ? (
-                      <a
-                        href={getArchivoUrl(o.archivo_orden)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition"
-                      >
-                        Ver PDF
-                      </a>
-                    ) : (
-                      <span className="text-gray-300">-</span>
-                    )}
+                    <div className="flex justify-end gap-2">
+                      {o.archivo_orden ? (
+                        <a
+                          href={getArchivoUrl(o.archivo_orden)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition"
+                        >
+                          Ver PDF
+                        </a>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
+                      {user?.rol === 'admin' && (
+                        <button
+                          onClick={() => setModalEliminar(o)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -230,6 +252,20 @@ const OrdenesPage = () => {
       {!loading && filtradas.length > 0 && (
         <Pagination page={page} pageSize={pageSize} total={filtradas.length} onChange={setPage} />
       )}
+
+      <Modal open={!!modalEliminar} onClose={() => setModalEliminar(null)} title="Eliminar orden">
+        <p className="text-sm text-gray-600 mb-5">
+          ¿Eliminar la orden <strong>{modalEliminar?.numero_orden}</strong>? Esta acción no se puede deshacer.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <button onClick={() => setModalEliminar(null)} className="px-4 py-2 text-sm rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+            Cancelar
+          </button>
+          <button onClick={handleEliminar} className="px-4 py-2 text-sm rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition">
+            Eliminar
+          </button>
+        </div>
+      </Modal>
 
       <Modal open={modalNueva} onClose={() => setModalNueva(false)} title="Cargar orden recibida del cliente">
         <form onSubmit={crearOrden} className="space-y-4">

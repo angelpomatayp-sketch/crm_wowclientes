@@ -29,6 +29,14 @@ const Cotizacion = sequelize.define('Cotizacion', {
   archivo_pdf: { type: DataTypes.STRING(300) },
   archivo_propuesta_pdf: { type: DataTypes.STRING(300) },
   observaciones: { type: DataTypes.TEXT },
-}, { tableName: 'cotizaciones' });
+}, {
+  tableName: 'cotizaciones',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['ejecutivo_id'] },
+    { fields: ['contacto_id'] },
+    { fields: ['estado'] },
+  ],
+});
 
 module.exports = Cotizacion;

@@ -16,6 +16,14 @@ const Oportunidad = sequelize.define('Oportunidad', {
   fecha_cierre_est: { type: DataTypes.DATEONLY },
   cotizacion_id: { type: DataTypes.INTEGER },
   observaciones: { type: DataTypes.TEXT },
-}, { tableName: 'oportunidades' });
+}, {
+  tableName: 'oportunidades',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['ejecutivo_id'] },
+    { fields: ['cotizacion_id'] },
+    { fields: ['etapa'] },
+  ],
+});
 
 module.exports = Oportunidad;

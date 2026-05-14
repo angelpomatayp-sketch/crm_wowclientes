@@ -7,6 +7,11 @@ const Marca = sequelize.define('Marca', {
   descripcion: { type: DataTypes.TEXT },
   web: { type: DataTypes.STRING(200) },
   activo: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { tableName: 'marcas' });
+}, {
+  tableName: 'marcas',
+  indexes: [
+    { fields: ['activo'] },
+  ],
+});
 
 module.exports = Marca;

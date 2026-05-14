@@ -11,8 +11,16 @@ const Factura = sequelize.define('Factura', {
   subtotal: { type: DataTypes.DECIMAL(12, 2) },
   igv: { type: DataTypes.DECIMAL(12, 2) },
   total: { type: DataTypes.DECIMAL(12, 2) },
+  moneda: { type: DataTypes.ENUM('PEN', 'USD'), allowNull: false, defaultValue: 'PEN' },
   archivo_pdf: { type: DataTypes.STRING(300) },
   archivo_xml: { type: DataTypes.STRING(300) },
-}, { tableName: 'facturas' });
+}, {
+  tableName: 'facturas',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['ejecutivo_id'] },
+    { fields: ['orden_id'] },
+  ],
+});
 
 module.exports = Factura;

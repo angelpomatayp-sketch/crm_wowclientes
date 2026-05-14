@@ -274,6 +274,7 @@ const ClientesPage = () => {
 
   const [modalCrear, setModalCrear] = useState(false);
   const [modalEditar, setModalEditar] = useState(null);
+  const [modalDesactivar, setModalDesactivar] = useState(null);
 
   const cargar = async () => {
     try {
@@ -314,6 +315,17 @@ const ClientesPage = () => {
       toast.error(err.response?.data?.message || 'Error al crear cliente');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDesactivar = async () => {
+    try {
+      await axios.delete(`/clientes/${modalDesactivar.id}`);
+      toast.success('Cliente desactivado');
+      setModalDesactivar(null);
+      cargar();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error al desactivar cliente');
     }
   };
 
@@ -505,6 +517,14 @@ const ClientesPage = () => {
                       >
                         Editar
                       </button>
+                      {user.rol === 'admin' && c.activo && (
+                        <button
+                          onClick={() => setModalDesactivar(c)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                        >
+                          Desactivar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -529,6 +549,21 @@ const ClientesPage = () => {
           ejecutivos={ejecutivos}
           isAdmin={user.rol === 'admin'}
         />
+      </Modal>
+
+      {/* Modal Desactivar */}
+      <Modal open={!!modalDesactivar} onClose={() => setModalDesactivar(null)} title="Desactivar cliente">
+        {modalDesactivar && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              ¿Desactivar a <strong>{modalDesactivar.razon_social}</strong>? El cliente quedará inactivo pero su historial se conserva.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setModalDesactivar(null)} className="text-sm px-4 py-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Cancelar</button>
+              <button onClick={handleDesactivar} className="text-sm px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition">Desactivar</button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Modal Editar */}

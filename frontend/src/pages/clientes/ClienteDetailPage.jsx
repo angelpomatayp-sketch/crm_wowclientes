@@ -156,7 +156,7 @@ const ContactoForm = ({ initial, onSubmit, loading }) => {
 };
 
 // ── Tabs ──────────────────────────────────────────────────────
-const TABS = ['Contactos', 'Cotizaciones', 'Órdenes', 'Facturas', 'Actividades'];
+const TABS = ['Contactos', 'Cotizaciones', 'Órdenes', 'Facturas'];
 
 const EstadoBadge = ({ estado }) => {
   const map = {
@@ -338,13 +338,12 @@ const ClienteDetailPage = () => {
       </div>
 
       {/* KPIs rápidos */}
-      <div className="grid grid-cols-5 gap-3 mb-5">
+      <div className="grid grid-cols-4 gap-3 mb-5">
         {[
           { label: 'Contactos',     value: contactos.length,    color: '#3b82f6' },
           { label: 'Cotizaciones',  value: cotizaciones.length, color: '#f59e0b' },
           { label: 'Órdenes',       value: ordenes.length,      color: '#10b981' },
           { label: 'Facturas',      value: facturas.length,     color: '#8b5cf6' },
-          { label: 'Actividades',   value: actividades.length,  color: '#ef4444' },
         ].map((k) => (
           <div key={k.label} className="bg-white rounded-xl p-4 text-center" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)', borderTop: `3px solid ${k.color}` }}>
             <p className="text-2xl font-bold text-gray-800">{k.value}</p>
@@ -514,41 +513,6 @@ const ClienteDetailPage = () => {
             </div>
           )}
 
-          {/* ── Actividades ── */}
-          {tab === 'Actividades' && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-sm font-semibold text-gray-700">Historial de interacciones</p>
-                <button
-                  onClick={() => navigate(`/actividades/nueva?cliente=${id}`)}
-                  className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition"
-                >
-                  <span>+</span> Registrar actividad
-                </button>
-              </div>
-              {actividades.length === 0 ? (
-                <p className="text-sm text-gray-400 py-6 text-center">Sin actividades registradas</p>
-              ) : (
-                <div className="space-y-3">
-                  {actividades.map((a) => {
-                    const tipoIcon = { llamada: '📞', reunion: '🤝', visita: '🚗', seguimiento: '📋', email: '📧' };
-                    return (
-                      <div key={a.id} className="flex gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-100 transition">
-                        <span className="text-xl shrink-0">{tipoIcon[a.tipo] || '📌'}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium text-gray-800">{a.asunto || a.tipo}</p>
-                            <span className="text-xs text-gray-400">{fmtDate(a.fecha)}</span>
-                          </div>
-                          {a.descripcion && <p className="text-xs text-gray-500 mt-0.5 truncate">{a.descripcion}</p>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 

@@ -15,6 +15,14 @@ const Actividad = sequelize.define('Actividad', {
   asunto: { type: DataTypes.STRING(200) },
   descripcion: { type: DataTypes.TEXT },
   resultado: { type: DataTypes.TEXT },
-}, { tableName: 'actividades' });
+}, {
+  tableName: 'actividades',
+  indexes: [
+    { fields: ['cliente_id'] },
+    { fields: ['ejecutivo_id'] },
+    { fields: ['contacto_id'] },
+    { fields: ['fecha'] },
+  ],
+});
 
 module.exports = Actividad;

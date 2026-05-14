@@ -3,7 +3,7 @@ const sequelize = require('../config/database');
 
 const Proveedor = sequelize.define('Proveedor', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  ruc: { type: DataTypes.STRING(11), unique: true },
+  ruc: { type: DataTypes.STRING(11), allowNull: false, unique: true },
   razon_social: { type: DataTypes.STRING(200), allowNull: false },
   nombre_comercial: { type: DataTypes.STRING(200) },
   descripcion: { type: DataTypes.TEXT },
@@ -11,6 +11,12 @@ const Proveedor = sequelize.define('Proveedor', {
   telefono: { type: DataTypes.STRING(20) },
   web: { type: DataTypes.STRING(200) },
   activo: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { tableName: 'proveedores' });
+}, {
+  tableName: 'proveedores',
+  indexes: [
+    { fields: ['activo'] },
+    { fields: ['ruc'] },
+  ],
+});
 
 module.exports = Proveedor;
