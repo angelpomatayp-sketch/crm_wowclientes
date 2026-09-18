@@ -40,8 +40,8 @@ Usuarios de ejemplo (solo para desarrollo local):
 ### Administrador
 | Campo | Valor |
 |-------|-------|
-| Email | admin@crmwow.com |
-| Contraseña | admin123 |
+| Email | admin@wowtechperu.com |
+| Contraseña | password.123 |
 | Rol | admin |
 
 ### Ejecutivo (demo)

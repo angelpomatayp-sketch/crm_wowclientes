@@ -18,6 +18,25 @@ const EMPTY = {
   fecha_registro: new Date().toISOString().split('T')[0],
 };
 
+const cx = (...classes) => classes.filter(Boolean).join(' ');
+
+const getInitials = (...values) => {
+  const text = values.filter(Boolean).join(' ').trim();
+  if (!text) return 'C';
+  return text
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+};
+
+const thCls = 'px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500';
+const tdCls = 'px-4 py-3 align-middle';
+const chipCls = 'inline-flex max-w-full items-center rounded-md px-2 py-1 text-xs font-medium leading-tight';
+const actionBtnCls = 'inline-flex h-8 items-center justify-center rounded-lg text-xs font-semibold transition whitespace-nowrap';
+const iconBtnCls = 'inline-flex h-8 w-8 items-center justify-center rounded-lg transition';
+
 // ── Modal base ──────────────────────────────────────────────
 const Modal = ({ open, onClose, title, children }) => {
   if (!open) return null;
@@ -413,7 +432,7 @@ const ClientesPage = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-gray-400">Cargando...</div>
         ) : filtrados.length === 0 ? (
@@ -422,115 +441,143 @@ const ClientesPage = () => {
             <p className="text-sm">{busqueda ? 'Sin resultados para tu búsqueda' : 'No hay clientes registrados'}</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Empresa</th>
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">RUC</th>
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Categoría</th>
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tipo</th>
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Estado</th>
-                <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Teléfono</th>
+          <div>
+            <table className="w-full table-fixed text-sm">
+              <colgroup>
+                <col className="w-[24%]" />
+                <col className="w-[10%]" />
+                <col className="w-[13%]" />
+                <col className="w-[12%]" />
+                <col className="w-[10%]" />
+                <col className="w-[10%]" />
                 {user.rol === 'admin' && (
-                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ejecutivo</th>
+                  <col className="w-[14%]" />
                 )}
-                <th className="text-right px-6 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {paginados.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0"
-                        style={{ background: '#1e3a5f' }}
-                      >
-                        {c.razon_social?.[0]?.toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">{c.razon_social}</p>
+                <col className="w-[16%]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/80">
+                  <th className={thCls}>Empresa</th>
+                  <th className={thCls}>RUC</th>
+                  <th className={thCls}>Categoría</th>
+                  <th className={thCls}>Tipo</th>
+                  <th className={thCls}>Estado</th>
+                  <th className={thCls}>Teléfono</th>
+                  {user.rol === 'admin' && (
+                    <th className={thCls}>Ejecutivo</th>
+                  )}
+                  <th className={`${thCls} text-right`}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginados.map((c) => (
+                  <tr key={c.id} className="transition-colors hover:bg-slate-50/70">
+                    <td className={tdCls}>
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold leading-5 text-slate-900" title={c.razon_social}>
+                          {c.razon_social}
+                        </p>
                         {c.nombre_comercial && (
-                          <p className="text-xs text-gray-400">{c.nombre_comercial}</p>
+                          <p className="mt-0.5 truncate text-xs leading-4 text-slate-400" title={c.nombre_comercial}>
+                            {c.nombre_comercial}
+                          </p>
                         )}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 font-mono text-xs">{c.ruc}</td>
-                  <td className="px-6 py-4">
-                    {c.categoria ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
-                        {c.categoria}
-                      </span>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    {c.tipo_cliente ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        {c.tipo_cliente}
-                      </span>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                        c.estado_cliente === 'cliente'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}
-                    >
-                      {c.estado_cliente || 'prospecto'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">{c.telefono || '—'}</td>
-                  {user.rol === 'admin' && (
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full font-medium">
-                        👤 {c.ejecutivo?.nombre} {c.ejecutivo?.apellido}
+                    </td>
+                    <td className={cx(tdCls, 'font-mono text-xs text-slate-500')}>{c.ruc}</td>
+                    <td className={tdCls}>
+                      {c.categoria ? (
+                        <span className={cx(chipCls, 'bg-indigo-50 text-indigo-700')} title={c.categoria}>
+                          <span className="truncate">{c.categoria}</span>
+                        </span>
+                      ) : <span className="text-slate-300">-</span>}
+                    </td>
+                    <td className={tdCls}>
+                      {c.tipo_cliente ? (
+                        <span className={cx(chipCls, 'bg-slate-100 text-slate-700')} title={c.tipo_cliente}>
+                          <span className="truncate">{c.tipo_cliente}</span>
+                        </span>
+                      ) : <span className="text-slate-300">-</span>}
+                    </td>
+                    <td className={tdCls}>
+                      <span
+                        className={cx(
+                          chipCls,
+                          'capitalize',
+                          c.estado_cliente === 'cliente'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-amber-50 text-amber-700'
+                        )}
+                      >
+                        {c.estado_cliente || 'prospecto'}
                       </span>
                     </td>
-                  )}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => navigate(`/clientes/${c.id}`)}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition"
-                      >
-                        Ver detalle
-                      </button>
-                      <button
-                        onClick={() => setModalEditar({
-                          id: c.id,
-                          ruc: c.ruc || '',
-                          razon_social: c.razon_social || '',
-                          nombre_comercial: c.nombre_comercial || '',
-                          direccion: c.direccion || '',
-                          telefono: c.telefono || '',
-                          web: c.web || '',
-                          ejecutivo_id: c.ejecutivo_id || '',
-                          estado_cliente: c.estado_cliente || 'prospecto',
-                          categoria: c.categoria || '',
-                          tipo_cliente: c.tipo_cliente || '',
-                          fecha_registro: c.fecha_registro || EMPTY.fecha_registro,
-                        })}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 font-medium transition"
-                      >
-                        Editar
-                      </button>
-                      {user.rol === 'admin' && c.activo && (
+                    <td className={cx(tdCls, 'text-slate-500')}>{c.telefono || '-'}</td>
+                    {user.rol === 'admin' && (
+                      <td className={tdCls}>
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700">
+                            {getInitials(c.ejecutivo?.nombre, c.ejecutivo?.apellido)}
+                          </span>
+                          <span
+                            className="truncate text-xs font-medium leading-4 text-slate-700"
+                            title={`${c.ejecutivo?.nombre || ''} ${c.ejecutivo?.apellido || ''}`.trim()}
+                          >
+                            {c.ejecutivo?.nombre} {c.ejecutivo?.apellido}
+                          </span>
+                        </div>
+                      </td>
+                    )}
+                    <td className={tdCls}>
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => setModalDesactivar(c)}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition"
+                          onClick={() => navigate(`/clientes/${c.id}`)}
+                          className={cx(actionBtnCls, 'px-3 bg-blue-50 text-blue-700 hover:bg-blue-100')}
                         >
-                          Desactivar
+                          Ver detalle
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        <button
+                          onClick={() => setModalEditar({
+                            id: c.id,
+                            ruc: c.ruc || '',
+                            razon_social: c.razon_social || '',
+                            nombre_comercial: c.nombre_comercial || '',
+                            direccion: c.direccion || '',
+                            telefono: c.telefono || '',
+                            web: c.web || '',
+                            ejecutivo_id: c.ejecutivo_id || '',
+                            estado_cliente: c.estado_cliente || 'prospecto',
+                            categoria: c.categoria || '',
+                            tipo_cliente: c.tipo_cliente || '',
+                            fecha_registro: c.fecha_registro || EMPTY.fecha_registro,
+                          })}
+                          title="Editar"
+                          aria-label="Editar"
+                          className={cx(iconBtnCls, 'bg-slate-100 text-slate-700 hover:bg-slate-200')}
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        {user.rol === 'admin' && c.activo && (
+                          <button
+                            onClick={() => setModalDesactivar(c)}
+                            title="Desactivar"
+                            aria-label="Desactivar"
+                            className={cx(iconBtnCls, 'bg-red-50 text-red-600 hover:bg-red-100')}
+                          >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-12.728 12.728M6.343 6.343a9 9 0 1011.314 11.314A9 9 0 006.343 6.343z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
